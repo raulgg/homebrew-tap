@@ -1,18 +1,22 @@
-# Raulgg Tap
+# raulgg Homebrew Tap
 
-## How do I install these formulae?
+Homebrew formulae maintained by [raulgg](https://github.com/raulgg).
 
-`brew install raulgg/tap/<formula>`
+## Install airpods-control
 
-Or `brew tap raulgg/tap` and then `brew install <formula>`.
-
-Or, in a `brew bundle` `Brewfile`:
-
-```ruby
-tap "raulgg/tap"
-brew "<formula>"
+```sh
+brew install raulgg/tap/airpods-control
 ```
 
-## Documentation
+`airpods-control` is a macOS command-line utility for controlling AirPods
+listening mode and Conversation Awareness. The formula builds from source and
+does not install a prebuilt bottle. Command Line Tools or Xcode are required.
 
-`brew help`, `man brew` or check [Homebrew's documentation](https://docs.brew.sh).
+Source, documentation, and issue tracking live in the
+[airpods-control repository](https://github.com/raulgg/airpods-control).
+
+## Trust
+
+This is a third-party tap. Installing its formulae executes their build
+instructions with your user privileges. Review the formula and upstream source
+before installation.
