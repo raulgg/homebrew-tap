@@ -1,22 +1,47 @@
-# raulgg Homebrew Tap
+# raulgg's Homebrew Tap
 
-Homebrew formulae maintained by [raulgg](https://github.com/raulgg).
+Homebrew tap for distributing my command-line tools and macOS apps.
 
-## Install airpods-control
+## Install
+
+Tap the repository once:
 
 ```sh
-brew install raulgg/tap/airpods-control
+brew tap raulgg/tap
 ```
 
-`airpods-control` is a macOS command-line utility for controlling AirPods
-listening mode and Conversation Awareness. The formula builds from source and
-does not install a prebuilt bottle. Command Line Tools or Xcode are required.
+Or install a package directly:
 
-Source, documentation, and issue tracking live in the
-[airpods-control repository](https://github.com/raulgg/airpods-control).
+```sh
+# Formula
+brew install raulgg/tap/FORMULA_NAME
 
-## Trust
+# Cask
+brew install --cask raulgg/tap/CASK_NAME
+```
 
-This is a third-party tap. Installing its formulae executes their build
-instructions with your user privileges. Review the formula and upstream source
-before installation.
+## Packages
+
+### Formulae
+
+- [`airpods-control`](https://github.com/raulgg/airpods-control) — Control
+  AirPods listening mode and Conversation Awareness from the command line.
+  Builds from source and requires Command Line Tools or Xcode.
+
+### Casks
+
+No casks yet.
+
+## Update and uninstall
+
+```sh
+brew update
+brew upgrade
+brew uninstall FORMULA_NAME
+brew uninstall --cask CASK_NAME
+```
+
+Run `brew info raulgg/tap/PACKAGE_NAME` for package-specific details.
+
+This is a third-party tap. Review a package's formula or cask and its upstream
+source before installation.
