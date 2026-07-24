@@ -11,7 +11,12 @@ class AirpodsControl < Formula
   depends_on :macos
 
   def install
-    system "make", "install", "PREFIX=#{prefix}"
+    system "make", "install",
+           "PREFIX=#{prefix}",
+           "CLANG=/usr/bin/clang",
+           "SWIFTC=/usr/bin/swiftc",
+           "LIPO=/usr/bin/lipo",
+           "CODESIGN=/usr/bin/codesign"
   end
 
   test do
