@@ -20,6 +20,7 @@ class UpdateAirpodsControlTest < Minitest::Test
         end
       RUBY
 
+      # Homebrew's Linux container has no `ruby` on PATH, so reuse this test's interpreter.
       stdout, stderr, status = Open3.capture3(
         { "AIRPODS_CONTROL_FORMULA_PATH" => formula },
         RbConfig.ruby, SCRIPT, tag, checksum
