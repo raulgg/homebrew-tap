@@ -1,0 +1,109 @@
+name: Update airpods-control formula
+
+on:
+  repository_dispatch:
+    types:
+      - airpods-control-release
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published airpods-control release tag
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-airpods-control
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update formula and open pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: formula-updater
+
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Test formula updater
+        run: ruby test/update_airpods_control_test.rb
+
+      - name: Verify release archive
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.client_payload.tag || inputs.tag }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release tag: $RELEASE_TAG" >&2
+            exit 1
+          fi
+
+          release=$(gh api "repos/raulgg/airpods-control/releases/tags/$RELEASE_TAG")
+          test "$(jq -r .draft <<<"$release")" = false
+          test "$(jq -r .prerelease <<<"$release")" = false
+
+          latest_tag=$(gh api repos/raulgg/airpods-control/releases/latest --jq .tag_name)
+          if [ "$RELEASE_TAG" != "$latest_tag" ]; then
+            echo "Refusing $RELEASE_TAG: latest stable release is $latest_tag" >&2
+            exit 1
+          fi
+
+          tag_sha=$(gh api "repos/raulgg/airpods-control/commits/$RELEASE_TAG" --jq .sha)
+          # For tag...main, "ahead" means main contains the tag commit.
+          comparison=$(gh api \
+            "repos/raulgg/airpods-control/compare/$tag_sha...main" --jq .status)
+          case "$comparison" in
+            ahead | identical) ;;
+            *)
+              echo "Refusing $RELEASE_TAG: tag commit is not on upstream main" >&2
+              exit 1
+              ;;
+          esac
+
+          archive_url="https://github.com/raulgg/airpods-control/archive/refs/tags/$RELEASE_TAG.tar.gz"
+          curl -L --fail --retry 3 -o first.tar.gz "$archive_url"
+          curl -L --fail --retry 3 -o second.tar.gz "$archive_url"
+          cmp first.tar.gz second.tar.gz
+
+          checksum=$(sha256sum first.tar.gz | cut -d ' ' -f 1)
+          ruby scripts/update-airpods-control.rb "$RELEASE_TAG" "$checksum"
+
+          echo "tag=$RELEASE_TAG" >>"$GITHUB_OUTPUT"
+          echo "version=${RELEASE_TAG#v}" >>"$GITHUB_OUTPUT"
+
+      - name: Create or update formula pull request
+        id: pull-request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          # GITHUB_TOKEN-authored PRs do not trigger pull_request workflows.
+          # Use the scoped PAT so required checks run.
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          base: main
+          branch: feat/airpods-control-release
+          delete-branch: true
+          add-paths: Formula/airpods-control.rb
+          commit-message: "chore: update airpods-control to ${{ steps.release.outputs.version }}"
+          title: "chore: update airpods-control to ${{ steps.release.outputs.version }}"
+          body: |
+            Update the source formula for
+            [airpods-control ${{ steps.release.outputs.version }}](https://github.com/raulgg/airpods-control/releases/tag/${{ steps.release.outputs.tag }}).
+
+            The updater verified that this is the latest stable release, that
+            its tag is reachable from upstream `main`, and that two downloads
+            of the tag archive matched before committing its SHA-256.
+
+      - name: Enable squash auto-merge
+        if: >-
+          steps.pull-request.outputs.pull-request-number &&
+          steps.pull-request.outputs.pull-request-operation != 'closed'
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          PR_NUMBER: ${{ steps.pull-request.outputs.pull-request-number }}
+        run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --auto --squash
