@@ -13,6 +13,7 @@ class AirpodsControl < Formula
   def install
     system "make", "install",
            "PREFIX=#{prefix}",
+           "ARCHS=#{Hardware::CPU.arch}",
            "CLANG=/usr/bin/clang",
            "SWIFTC=/usr/bin/swiftc",
            "LIPO=/usr/bin/lipo",
