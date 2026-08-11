@@ -25,6 +25,7 @@ current_version = Gem::Version.new(formula.match(url_pattern)[1])
 current_checksum = formula.match(checksum_pattern)[0][/"([0-9a-f]{64})"/, 1]
 release_version = Gem::Version.new(tag.delete_prefix("v"))
 
+# Updates are monotonic; retries may no-op, but an existing version's checksum is immutable.
 if release_version < current_version
   abort "refusing downgrade from v#{current_version} to #{tag}"
 end
