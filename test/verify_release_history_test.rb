@@ -11,8 +11,8 @@ class VerifyReleaseHistoryTest < Minitest::Test
   REPOSITORY = "repos/raulgg/airpods-control"
   SHA = ("a" * 40).freeze
   TAG_COMMAND = "api #{REPOSITORY}/commits/refs/tags/v0.3.1 --jq .sha".freeze
-  MAIN_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...main --jq .status".freeze
-  MAINTENANCE_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...release/0.3 --jq .status".freeze
+  MAIN_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...refs/heads/main --jq .status".freeze
+  MAINTENANCE_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...refs/heads/release/0.3 --jq .status".freeze
 
   def verify(responses, *tags)
     Dir.mktmpdir do |directory|
@@ -77,7 +77,7 @@ class VerifyReleaseHistoryTest < Minitest::Test
 
   def test_derives_the_maintenance_branch_from_the_tag
     tag_command = "api #{REPOSITORY}/commits/refs/tags/v12.34.56 --jq .sha"
-    branch_command = "api #{REPOSITORY}/compare/#{SHA}...release/12.34 --jq .status"
+    branch_command = "api #{REPOSITORY}/compare/#{SHA}...refs/heads/release/12.34 --jq .status"
     stdout, stderr, status, calls = verify(
       { tag_command => SHA, MAIN_COMMAND => "diverged", branch_command => "identical" }, "v12.34.56"
     )
@@ -93,6 +93,36 @@ class VerifyReleaseHistoryTest < Minitest::Test
     refute status.success?
     assert_empty stdout
     assert_includes stderr, "API request failed"
+  end
+
+  def test_rejects_a_tag_named_main_when_the_branch_is_missing
+    responses = {
+      TAG_COMMAND                         => SHA,
+      MAIN_COMMAND.sub("refs/heads/", "") => "identical",
+      MAIN_COMMAND                        => nil,
+    }
+    stdout, stderr, status, calls = verify(responses, "v0.3.1")
+
+    refute status.success?, "accepted a main tag without a main branch"
+    assert_empty stdout
+    assert_includes stderr, "API request failed"
+    assert_equal [TAG_COMMAND, MAIN_COMMAND], calls
+  end
+
+  def test_rejects_a_tag_named_like_the_missing_maintenance_branch
+    responses = {
+      TAG_COMMAND                                => SHA,
+      MAIN_COMMAND.sub("refs/heads/", "")        => "diverged",
+      MAIN_COMMAND                               => "diverged",
+      MAINTENANCE_COMMAND.sub("refs/heads/", "") => "identical",
+      MAINTENANCE_COMMAND                        => nil,
+    }
+    stdout, stderr, status, calls = verify(responses, "v0.3.1")
+
+    refute status.success?, "accepted a maintenance tag without a maintenance branch"
+    assert_empty stdout
+    assert_includes stderr, "API request failed"
+    assert_equal [TAG_COMMAND, MAIN_COMMAND, MAINTENANCE_COMMAND], calls
   end
 
   def test_does_not_fall_back_when_main_comparison_fails
