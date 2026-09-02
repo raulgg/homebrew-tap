@@ -4,8 +4,8 @@
 class AirpodsControl < Formula
   desc "Control AirPods listening mode and Conversation Awareness from the CLI"
   homepage "https://github.com/raulgg/airpods-control"
-  url "https://github.com/raulgg/airpods-control/archive/refs/tags/v0.3.0.tar.gz"
-  sha256 "1ec253a7737fc410407d4f551b6bf038b176d02091157165b469e65816539f8e"
+  url "https://github.com/raulgg/airpods-control/archive/refs/tags/v0.3.1.tar.gz"
+  sha256 "d28362b73715067ad3cdddf0dbb3cfb6036ba4d767f4ff521caa12b5eb8d30a6"
   license "MIT"
 
   depends_on :macos
