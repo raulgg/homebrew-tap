@@ -29,7 +29,7 @@ jobs:
           ref: main
 
       - name: Test formula updater
-        run: ruby test/update_airpods_control_test.rb
+        run: ruby test/run.rb
 
       - name: Verify release archive
         id: release
@@ -52,18 +52,7 @@ jobs:
             exit 1
           fi
 
-          tag_sha=$(gh api \
-            "repos/raulgg/airpods-control/commits/refs/tags/$RELEASE_TAG" --jq .sha)
-          # For tag...main, "ahead" means main contains the tag commit.
-          comparison=$(gh api \
-            "repos/raulgg/airpods-control/compare/$tag_sha...main" --jq .status)
-          case "$comparison" in
-            ahead | identical) ;;
-            *)
-              echo "Refusing $RELEASE_TAG: tag commit is not on upstream main" >&2
-              exit 1
-              ;;
-          esac
+          release_branch=$(bash scripts/verify-release-history.sh "$RELEASE_TAG")
 
           archive_url="https://github.com/raulgg/airpods-control/archive/refs/tags/$RELEASE_TAG.tar.gz"
           curl -L --fail --retry 3 -o first.tar.gz "$archive_url"
@@ -73,8 +62,11 @@ jobs:
           checksum=$(sha256sum first.tar.gz | cut -d ' ' -f 1)
           ruby scripts/update-airpods-control.rb "$RELEASE_TAG" "$checksum"
 
-          echo "tag=$RELEASE_TAG" >>"$GITHUB_OUTPUT"
-          echo "version=${RELEASE_TAG#v}" >>"$GITHUB_OUTPUT"
+          {
+            echo "tag=$RELEASE_TAG"
+            echo "version=${RELEASE_TAG#v}"
+            echo "branch=$release_branch"
+          } >>"$GITHUB_OUTPUT"
 
       - name: Create or update formula pull request
         id: pull-request
@@ -94,8 +86,9 @@ jobs:
             [airpods-control ${{ steps.release.outputs.version }}](https://github.com/raulgg/airpods-control/releases/tag/${{ steps.release.outputs.tag }}).
 
             The updater verified that this is the latest stable release, that
-            its tag is reachable from upstream `main`, and that two downloads
-            of the tag archive matched before committing its SHA-256.
+            its tag is reachable from upstream `${{ steps.release.outputs.branch }}`,
+            and that two downloads of the tag archive matched before committing
+            its SHA-256.
 
       - name: Enable squash auto-merge
         if: >-
