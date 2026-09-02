@@ -1,3 +1,4 @@
+# typed: strict
 # frozen_string_literal: true
 
 require "minitest/autorun"
@@ -8,10 +9,10 @@ require "tmpdir"
 class VerifyReleaseHistoryTest < Minitest::Test
   SCRIPT = File.expand_path("../scripts/verify-release-history.sh", __dir__).freeze
   REPOSITORY = "repos/raulgg/airpods-control"
-  SHA = "a" * 40
-  TAG_COMMAND = "api #{REPOSITORY}/commits/refs/tags/v0.3.1 --jq .sha"
-  MAIN_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...main --jq .status"
-  MAINTENANCE_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...release/0.3 --jq .status"
+  SHA = ("a" * 40).freeze
+  TAG_COMMAND = "api #{REPOSITORY}/commits/refs/tags/v0.3.1 --jq .sha".freeze
+  MAIN_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...main --jq .status".freeze
+  MAINTENANCE_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...release/0.3 --jq .status".freeze
 
   def verify(responses, *tags)
     Dir.mktmpdir do |directory|
@@ -30,10 +31,10 @@ class VerifyReleaseHistoryTest < Minitest::Test
         '*) echo "Unexpected API call: $*" >&2; exit 1 ;;',
         "esac",
       ].join("\n"))
-      File.chmod(0o755, gh_path)
+      File.chmod(0755, gh_path)
 
       stdout, stderr, status = Open3.capture3(
-        { "PATH" => "#{directory}:#{ENV.fetch('PATH')}", "GH_CALLS" => calls_path },
+        { "PATH" => "#{directory}:#{ENV.fetch("PATH")}", "GH_CALLS" => calls_path },
         "bash", SCRIPT, *tags
       )
       return stdout, stderr, status, File.readlines(calls_path, chomp: true)
