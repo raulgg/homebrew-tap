@@ -15,8 +15,8 @@ tag_sha=$(gh api "repos/${repository}/commits/refs/tags/${tag}" --jq .sha)
 for branch in main "${maintenance_branch}"
 do
   # For tag...branch, "ahead" means the branch contains the tag commit.
-  # API errors must fail closed, including a missing maintenance branch.
-  comparison=$(gh api "repos/${repository}/compare/${tag_sha}...${branch}" --jq .status)
+  # Require a branch, never a same-named tag. API errors must fail closed.
+  comparison=$(gh api "repos/${repository}/compare/${tag_sha}...refs/heads/${branch}" --jq .status)
   case "${comparison}" in
     ahead | identical)
       printf '%s\n' "${branch}"
