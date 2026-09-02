@@ -41,7 +41,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: >-
           brew ruby
-          "$(brew --repository raulgg/tap)/test/update_airpods_control_test.rb"
+          "$(brew --repository raulgg/tap)/test/run.rb"
 
       - run: brew test-bot --only-cleanup-before
 
