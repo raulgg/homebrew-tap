@@ -62,9 +62,11 @@ jobs:
           checksum=$(sha256sum first.tar.gz | cut -d ' ' -f 1)
           ruby scripts/update-airpods-control.rb "$RELEASE_TAG" "$checksum"
 
-          echo "tag=$RELEASE_TAG" >>"$GITHUB_OUTPUT"
-          echo "version=${RELEASE_TAG#v}" >>"$GITHUB_OUTPUT"
-          echo "branch=$release_branch" >>"$GITHUB_OUTPUT"
+          {
+            echo "tag=$RELEASE_TAG"
+            echo "version=${RELEASE_TAG#v}"
+            echo "branch=$release_branch"
+          } >>"$GITHUB_OUTPUT"
 
       - name: Create or update formula pull request
         id: pull-request
