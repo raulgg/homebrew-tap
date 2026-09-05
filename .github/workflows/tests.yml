@@ -47,6 +47,11 @@ jobs:
 
       - run: brew test-bot --only-setup
 
+      # brew style installs shellcheck, which depends on gmp. Homebrew no
+      # longer bottles gmp for Intel, so tap-syntax dies on macos-15-intel
+      # before the formula is installed. Lint still runs on macos-26 and
+      # Ubuntu; Intel keeps --only-formulae so brew install is still tested.
       - run: brew test-bot --only-tap-syntax
+        if: matrix.os != 'macos-15-intel'
       - run: brew test-bot --only-formulae
         if: github.event_name == 'pull_request'
