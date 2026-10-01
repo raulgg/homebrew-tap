@@ -9,7 +9,7 @@ fi
 
 tag=$1
 maintenance_branch="release/${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
-repository=raulgg/airpods-control
+repository=raulgg/pods-control
 tag_sha=$(gh api "repos/${repository}/commits/refs/tags/${tag}" --jq .sha)
 
 for branch in main "${maintenance_branch}"

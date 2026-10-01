@@ -1,10 +1,10 @@
-name: Update airpods-control formula
+name: Update pods-control formula
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Published airpods-control release tag
+        description: Published pods-control release tag
         required: true
         type: string
 
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: update-airpods-control
+  group: update-pods-control
   cancel-in-progress: false
 
 jobs:
@@ -42,11 +42,11 @@ jobs:
             exit 1
           fi
 
-          release=$(gh api "repos/raulgg/airpods-control/releases/tags/$RELEASE_TAG")
+          release=$(gh api "repos/raulgg/pods-control/releases/tags/$RELEASE_TAG")
           test "$(jq -r .draft <<<"$release")" = false
           test "$(jq -r .prerelease <<<"$release")" = false
 
-          latest_tag=$(gh api repos/raulgg/airpods-control/releases/latest --jq .tag_name)
+          latest_tag=$(gh api repos/raulgg/pods-control/releases/latest --jq .tag_name)
           if [ "$RELEASE_TAG" != "$latest_tag" ]; then
             echo "Refusing $RELEASE_TAG: latest stable release is $latest_tag" >&2
             exit 1
@@ -54,13 +54,13 @@ jobs:
 
           release_branch=$(bash scripts/verify-release-history.sh "$RELEASE_TAG")
 
-          archive_url="https://github.com/raulgg/airpods-control/archive/refs/tags/$RELEASE_TAG.tar.gz"
+          archive_url="https://github.com/raulgg/pods-control/archive/refs/tags/$RELEASE_TAG.tar.gz"
           curl -L --fail --retry 3 -o first.tar.gz "$archive_url"
           curl -L --fail --retry 3 -o second.tar.gz "$archive_url"
           cmp first.tar.gz second.tar.gz
 
           checksum=$(sha256sum first.tar.gz | cut -d ' ' -f 1)
-          ruby scripts/update-airpods-control.rb "$RELEASE_TAG" "$checksum"
+          ruby scripts/update-pods-control.rb "$RELEASE_TAG" "$checksum"
 
           {
             echo "tag=$RELEASE_TAG"
@@ -76,14 +76,14 @@ jobs:
           # Use the scoped PAT so required checks run.
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           base: main
-          branch: feat/airpods-control-release
+          branch: feat/pods-control-release
           delete-branch: true
-          add-paths: Formula/airpods-control.rb
-          commit-message: "chore: update airpods-control to ${{ steps.release.outputs.version }}"
-          title: "chore: update airpods-control to ${{ steps.release.outputs.version }}"
+          add-paths: Formula/pods-control.rb
+          commit-message: "chore: update pods-control to ${{ steps.release.outputs.version }}"
+          title: "chore: update pods-control to ${{ steps.release.outputs.version }}"
           body: |
             Update the source formula for
-            [airpods-control ${{ steps.release.outputs.version }}](https://github.com/raulgg/airpods-control/releases/tag/${{ steps.release.outputs.tag }}).
+            [pods-control ${{ steps.release.outputs.version }}](https://github.com/raulgg/pods-control/releases/tag/${{ steps.release.outputs.tag }}).
 
             The updater verified that this is the latest stable release, that
             its tag is reachable from upstream `${{ steps.release.outputs.branch }}`,
