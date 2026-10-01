@@ -8,7 +8,7 @@ require "tmpdir"
 
 class VerifyReleaseHistoryTest < Minitest::Test
   SCRIPT = File.expand_path("../scripts/verify-release-history.sh", __dir__).freeze
-  REPOSITORY = "repos/raulgg/airpods-control"
+  REPOSITORY = "repos/raulgg/pods-control"
   SHA = ("a" * 40).freeze
   TAG_COMMAND = "api #{REPOSITORY}/commits/refs/tags/v0.3.1 --jq .sha".freeze
   MAIN_COMMAND = "api #{REPOSITORY}/compare/#{SHA}...refs/heads/main --jq .status".freeze

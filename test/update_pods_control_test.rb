@@ -1,3 +1,4 @@
+# typed: strict
 # frozen_string_literal: true
 
 require "minitest/autorun"
@@ -5,24 +6,24 @@ require "open3"
 require "rbconfig"
 require "tmpdir"
 
-class UpdateAirpodsControlTest < Minitest::Test
-  SCRIPT = File.expand_path("../scripts/update-airpods-control.rb", __dir__).freeze
+class UpdatePodsControlTest < Minitest::Test
+  SCRIPT = File.expand_path("../scripts/update-pods-control.rb", __dir__).freeze
   OLD_CHECKSUM = "1" * 64
   NEW_CHECKSUM = "2" * 64
 
   def run_updater(current_version:, current_checksum:, tag:, checksum:)
     Dir.mktmpdir do |directory|
-      formula = File.join(directory, "airpods-control.rb")
+      formula = File.join(directory, "pods-control.rb")
       File.write(formula, <<~RUBY)
-        class AirpodsControl < Formula
-          url "https://github.com/raulgg/airpods-control/archive/refs/tags/v#{current_version}.tar.gz"
+        class PodsControl < Formula
+          url "https://github.com/raulgg/pods-control/archive/refs/tags/v#{current_version}.tar.gz"
           sha256 "#{current_checksum}"
         end
       RUBY
 
       # Homebrew's Linux container has no `ruby` on PATH, so reuse this test's interpreter.
       stdout, stderr, status = Open3.capture3(
-        { "AIRPODS_CONTROL_FORMULA_PATH" => formula },
+        { "PODS_CONTROL_FORMULA_PATH" => formula },
         RbConfig.ruby, SCRIPT, tag, checksum
       )
       return stdout, stderr, status, File.read(formula)
@@ -37,7 +38,7 @@ class UpdateAirpodsControlTest < Minitest::Test
 
     assert status.success?, stderr
     assert_includes stdout, "Updated"
-    assert_includes formula, "v1.3.0.tar.gz"
+    assert_includes formula, "https://github.com/raulgg/pods-control/archive/refs/tags/v1.3.0.tar.gz"
     assert_includes formula, NEW_CHECKSUM
   end
 

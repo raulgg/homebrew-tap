@@ -11,15 +11,15 @@ abort "invalid release tag: #{tag}" unless tag.match?(/\Av\d+\.\d+\.\d+\z/)
 abort "invalid SHA-256: #{checksum}" unless checksum.match?(/\A[0-9a-f]{64}\z/)
 
 formula_path = ENV.fetch(
-  "AIRPODS_CONTROL_FORMULA_PATH",
-  File.expand_path("../Formula/airpods-control.rb", __dir__),
+  "PODS_CONTROL_FORMULA_PATH",
+  File.expand_path("../Formula/pods-control.rb", __dir__),
 )
 formula = File.read(formula_path)
-url_pattern = %r{^  url "https://github\.com/raulgg/airpods-control/archive/refs/tags/v(\d+\.\d+\.\d+)\.tar\.gz"$}
+url_pattern = %r{^  url "https://github\.com/raulgg/pods-control/archive/refs/tags/v(\d+\.\d+\.\d+)\.tar\.gz"$}
 checksum_pattern = /^  sha256 "[0-9a-f]{64}"$/
 
-abort "expected one airpods-control URL" unless formula.scan(url_pattern).one?
-abort "expected one airpods-control checksum" unless formula.scan(checksum_pattern).one?
+abort "expected one pods-control URL" unless formula.scan(url_pattern).one?
+abort "expected one pods-control checksum" unless formula.scan(checksum_pattern).one?
 
 current_version = Gem::Version.new(formula.match(url_pattern)[1])
 current_checksum = formula.match(checksum_pattern)[0][/"([0-9a-f]{64})"/, 1]
@@ -39,9 +39,9 @@ if release_version == current_version
   exit 0
 end
 
-release_url = "https://github.com/raulgg/airpods-control/archive/refs/tags/#{tag}.tar.gz"
+release_url = "https://github.com/raulgg/pods-control/archive/refs/tags/#{tag}.tar.gz"
 updated = formula.sub(url_pattern, "  url \"#{release_url}\"")
                  .sub(checksum_pattern, "  sha256 \"#{checksum}\"")
 
 File.write(formula_path, updated)
-puts "Updated Formula/airpods-control.rb to #{tag}"
+puts "Updated Formula/pods-control.rb to #{tag}"

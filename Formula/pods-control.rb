@@ -1,9 +1,9 @@
-# airpods-control builds from source with Swift and clang. It uses a private
+# pods-control builds from source with Swift and clang. It uses a private
 # Apple audio API through a small DYLD interpose library; review the upstream
 # source before installation.
-class AirpodsControl < Formula
-  desc "Control AirPods listening mode and Conversation Awareness from the CLI"
-  homepage "https://github.com/raulgg/airpods-control"
+class PodsControl < Formula
+  desc "macOS CLI for AirPods and Beats listening modes"
+  homepage "https://github.com/raulgg/pods-control"
   url "https://github.com/raulgg/pods-control/archive/refs/tags/v0.4.0.tar.gz"
   sha256 "3166468ab869a50d5d2c7ee119c17f777d19f9e8b0e2dfee951339e8c0bad0a6"
   license "MIT"

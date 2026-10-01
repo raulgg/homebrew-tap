@@ -37,7 +37,7 @@ jobs:
           key: ${{ matrix.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
           restore-keys: ${{ matrix.os }}-rubygems-
 
-      - name: Test airpods-control updater
+      - name: Test pods-control updater
         if: matrix.os == 'ubuntu-latest'
         run: >-
           brew ruby
