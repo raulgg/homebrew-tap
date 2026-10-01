@@ -4,8 +4,8 @@
 class PodsControl < Formula
   desc "macOS CLI for AirPods and Beats listening modes"
   homepage "https://github.com/raulgg/pods-control"
-  url "https://github.com/raulgg/pods-control/archive/refs/tags/v0.4.0.tar.gz"
-  sha256 "3166468ab869a50d5d2c7ee119c17f777d19f9e8b0e2dfee951339e8c0bad0a6"
+  url "https://github.com/raulgg/pods-control/archive/refs/tags/v0.5.0.tar.gz"
+  sha256 "454fb494937fd1f6e48db6542e3726fe164e010cdb8580adc475de906263a775"
   license "MIT"
 
   depends_on :macos
