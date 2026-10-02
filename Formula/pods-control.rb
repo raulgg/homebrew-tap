@@ -10,6 +10,10 @@ class PodsControl < Formula
 
   depends_on :macos
 
+  conflicts_with "airpods-control",
+                 because: "both install bin/pods-control and bin/airpods-control. " \
+                          "Uninstall airpods-control before installing pods-control"
+
   def install
     system "make", "install",
            "PREFIX=#{prefix}",

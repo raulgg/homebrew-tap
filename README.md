@@ -25,8 +25,13 @@ brew install --cask raulgg/tap/CASK_NAME
 ### Formulae
 
 - [`pods-control`](https://github.com/raulgg/pods-control) — macOS CLI for
-  AirPods and Beats listening modes. `brew install airpods-control` installs
-  this formula. Builds from source and requires Command Line Tools or Xcode.
+  AirPods and Beats listening modes. New installs use
+  `brew install raulgg/tap/pods-control`. `airpods-control` is a separate
+  deprecated formula for current installs. Upgrades stay on that keg and
+  do not rename it. Switch with
+  `brew uninstall --formula airpods-control`, then
+  `brew install --formula raulgg/tap/pods-control`. Builds from source and
+  requires Command Line Tools or Xcode.
 
 ### Casks
 

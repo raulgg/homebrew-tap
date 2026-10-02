@@ -78,12 +78,15 @@ jobs:
           base: main
           branch: feat/pods-control-release
           delete-branch: true
-          add-paths: Formula/pods-control.rb
+          add-paths: |
+            Formula/airpods-control.rb
+            Formula/pods-control.rb
           commit-message: "chore: update pods-control to ${{ steps.release.outputs.version }}"
           title: "chore: update pods-control to ${{ steps.release.outputs.version }}"
           body: |
             Update the source formula for
             [pods-control ${{ steps.release.outputs.version }}](https://github.com/raulgg/pods-control/releases/tag/${{ steps.release.outputs.tag }}).
+            The deprecated airpods-control formula is bumped to the same archive.
 
             The updater verified that this is the latest stable release, that
             its tag is reachable from upstream `${{ steps.release.outputs.branch }}`,
